@@ -5,9 +5,20 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Description>Configuration extensions used by various CodeGator solutions</Description>
-    <PackageIcon>packageDefaultIcon-50x50.png</PackageIcon>
+    <PackageIcon>packageDefaultIcon-128x128.png</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\packageDefaultIcon-128x128.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="CodeGator.Validations" Version="1.0.4" />
