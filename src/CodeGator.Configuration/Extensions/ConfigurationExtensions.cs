@@ -4,16 +4,16 @@ namespace Microsoft.Extensions.Configuration;
 #pragma warning restore IDE0130 // Namespace does not match folder structure
 
 /// <summary>
-/// This class utility contains extension methods related to the <see cref="IConfiguration"/>
-/// type.
+/// This class provides extension methods for IConfiguration and related types.
 /// </summary>
+/// <remarks>
+/// <para>
+/// It includes helpers for hierarchy navigation, typed parsing, safe copying onto
+/// CLR properties, and simple JSON export for <see cref="IConfiguration"/> graphs.
+/// </para>
+/// </remarks>
 public static partial class ConfigurationExtensions
 {
-    // *******************************************************************
-    // Public methods.
-    // *******************************************************************
-
-    #region Public methods
 
     /// <summary>
     /// This method determines if the specified field is missing, or not.
@@ -22,6 +22,8 @@ public static partial class ConfigurationExtensions
     /// operation.</param>
     /// <param name="fieldName">The field name to use for the operation.</param>
     /// <returns>True if the field is missing; False otherwise.</returns>
+    /// <exception cref="ArgumentException">This exception is thrown whenever
+    /// one or more of the argument is missing, or invalid.</exception>
     public static bool FieldIsMissing(
         [NotNull] this IConfiguration configuration,
         [NotNull] string fieldName
@@ -36,8 +38,6 @@ public static partial class ConfigurationExtensions
         return result;
     }
 
-    // *******************************************************************
-
     /// <summary>
     /// This method determines if the specified field contains an array, or
     /// not.
@@ -46,6 +46,8 @@ public static partial class ConfigurationExtensions
     /// operation.</param>
     /// <param name="fieldName">The field name to use for the operation.</param>
     /// <returns>True if the field contains an array; False otherwise.</returns>
+    /// <exception cref="ArgumentException">This exception is thrown whenever
+    /// one or more of the argument is missing, or invalid.</exception>
     public static bool FieldIsArray(
         [NotNull] this IConfiguration configuration,
         [NotNull] string fieldName
@@ -58,8 +60,6 @@ public static partial class ConfigurationExtensions
         return result;
     }
 
-    // *******************************************************************
-
     /// <summary>
     /// This method determines if the specified configuration section has
     /// any child nodes, or not.
@@ -68,6 +68,8 @@ public static partial class ConfigurationExtensions
     /// operation.</param>
     /// <returns>True if the configuration section has child nodes; False 
     /// otherwise.</returns>
+    /// <exception cref="ArgumentException">This exception is thrown whenever
+    /// one or more of the argument is missing, or invalid.</exception>
     public static bool HasChildren(
         [NotNull] this IConfiguration configuration
         )
@@ -77,8 +79,6 @@ public static partial class ConfigurationExtensions
         var result = configuration.GetChildren().Any();
         return result;
     }
-
-    // *******************************************************************
 
     /// <summary>
     /// This method returns the parent section of the specified configuration
@@ -110,8 +110,6 @@ public static partial class ConfigurationExtensions
         return parentSection as IConfigurationSection;
     }
 
-    // *******************************************************************
-
     /// <summary>
     /// This method always returns the root section of the specified 
     /// configuration hierarchy.
@@ -141,8 +139,6 @@ public static partial class ConfigurationExtensions
         return root;
     }
 
-    // *******************************************************************
-
     /// <summary>
     /// This method returns the path for the specified <see cref="IConfiguration"/>
     /// object.
@@ -164,8 +160,6 @@ public static partial class ConfigurationExtensions
 
         return path;
     }
-
-    // *******************************************************************
 
     /// <summary>
     /// This method returns the value for the specified <see cref="IConfiguration"/>
@@ -189,20 +183,22 @@ public static partial class ConfigurationExtensions
         return value ?? "";
     }
 
-    // *******************************************************************
-
     /// <summary>
-    /// This method safely copies a value from the specified key of the 
-    /// configuration to the property on the target oject using a LINQ
-    /// expression to identify the property to change. If the configuration
-    /// key is missing, or the value is NULL, then no copy operation is
-    /// performed - unless the <paramref name="allowSetNulls"/> property is
-    /// set to TRUE.
+    /// This method copies a configuration value onto a property selected by LINQ.
     /// </summary>
+    /// <remarks>
+    /// <para>
+    /// It reads <paramref name="key"/> from <paramref name="configuration"/> and
+    /// assigns the parsed value to the property identified by
+    /// <paramref name="selector"/> on <paramref name="target"/>. If the key is
+    /// missing or the value is null, no assignment occurs unless
+    /// <paramref name="allowSetNulls"/> is true.
+    /// </para>
+    /// </remarks>
     /// <typeparam name="TObj">The target object type.</typeparam>
     /// <typeparam name="TProp">The target property type.</typeparam>
     /// <param name="configuration">The configuration to use for the operation.</param>
-    /// <param name = "target" > The target object to use for the operation.</param>
+    /// <param name="target">The target object to use for the operation.</param>
     /// <param name="selector">The LINQ expression to use for the operation.</param>
     /// <param name="key">The configuration key to use for the operation.</param>
     /// <param name="allowSetNulls">Indicates whether to allow a NULL value to be
@@ -307,8 +303,6 @@ public static partial class ConfigurationExtensions
         return configuration;
     }
 
-    // *******************************************************************
-
     /// <summary>
     /// This method reads a list of key-value-pairs and converts them to
     /// the specified type before returning.
@@ -316,7 +310,7 @@ public static partial class ConfigurationExtensions
     /// <typeparam name="T">The type to use for the operation.</typeparam>
     /// <param name="configuration">The configuration to use for the operation.</param>
     /// <param name="key">The key to read from.</param>
-    /// <param name="value">The list of values read from the key.</param>
+    /// <param name="value">The list of values read from the indexed key sequence.</param>
     /// <returns>True if the setting was read and converted; false otherwise.</returns>
     /// <exception cref="ArgumentException">This exception is thrown whenever
     /// one or more of the argument is missing, or invalid.</exception>
@@ -349,8 +343,6 @@ public static partial class ConfigurationExtensions
         return result;
     }
 
-    // *******************************************************************
-
     /// <summary>
     /// This method reads a key-value pair from an <see cref="IConfiguration"/> 
     /// object, parses it, and returns the value as <typeparamref name="T"/> value. 
@@ -358,7 +350,7 @@ public static partial class ConfigurationExtensions
     /// <typeparam name="T">The type to use for the operation.</typeparam>
     /// <param name="configuration">The configuration to use for the operation.</param>
     /// <param name="key">The key to read from.</param>
-    /// <param name="value">The list of values read from the key.</param>
+    /// <param name="value">The parsed value read from the key when the method returns true.</param>
     /// <returns>True if the setting was read and converted; false otherwise.</returns>
     /// <exception cref="ArgumentException">This exception is thrown whenever
     /// one or more of the argument is missing, or invalid.</exception>
@@ -530,8 +522,6 @@ public static partial class ConfigurationExtensions
         return result;
     }
 
-    // *******************************************************************
-
     /// <summary>
     /// This method reads a key-value pair from an <see cref="IConfiguration"/> 
     /// object, parses it, and returns the value as a boolean value. 
@@ -568,8 +558,6 @@ public static partial class ConfigurationExtensions
 
         return false;
     }
-
-    // *******************************************************************
 
     /// <summary>
     /// This method reads a key-value pair from an <see cref="IConfiguration"/> 
@@ -608,8 +596,6 @@ public static partial class ConfigurationExtensions
         return false;
     }
 
-    // *******************************************************************
-
     /// <summary>
     /// This method reads a key-value pair from an <see cref="IConfiguration"/> 
     /// object, parses it, and returns the value as a TimeSpan value. 
@@ -645,8 +631,6 @@ public static partial class ConfigurationExtensions
 
         return false;
     }
-
-    // *******************************************************************
 
     /// <summary>
     /// This method reads a key-value pair from an <see cref="IConfiguration"/> 
@@ -685,8 +669,6 @@ public static partial class ConfigurationExtensions
         return false;
     }
 
-    // *******************************************************************
-
     /// <summary>
     /// This method reads a key-value pair from an <see cref="IConfiguration"/> 
     /// object, parses it, and returns the value as a DateTimeOffset value. 
@@ -723,8 +705,6 @@ public static partial class ConfigurationExtensions
 
         return false;
     }
-
-    // *******************************************************************
 
     /// <summary>
     /// This method reads a key-value pair from an <see cref="IConfiguration"/> 
@@ -763,8 +743,6 @@ public static partial class ConfigurationExtensions
         return false;
     }
 
-    // *******************************************************************
-
     /// <summary>
     /// This method reads a key-value pair from an <see cref="IConfiguration"/> 
     /// object, parses it, and returns the value as a uint value. 
@@ -801,8 +779,6 @@ public static partial class ConfigurationExtensions
 
         return false;
     }
-
-    // *******************************************************************
 
     /// <summary>
     /// This method reads a key-value pair from an <see cref="IConfiguration"/> 
@@ -841,8 +817,6 @@ public static partial class ConfigurationExtensions
         return false;
     }
 
-    // *******************************************************************
-
     /// <summary>
     /// This method reads a key-value pair from an <see cref="IConfiguration"/> 
     /// object, parses it, and returns the value as a ulong value. 
@@ -879,8 +853,6 @@ public static partial class ConfigurationExtensions
 
         return false;
     }
-
-    // *******************************************************************
 
     /// <summary>
     /// This method reads a key-value pair from an <see cref="IConfiguration"/> 
@@ -919,8 +891,6 @@ public static partial class ConfigurationExtensions
         return false;
     }
 
-    // *******************************************************************
-
     /// <summary>
     /// This method reads a key-value pair from an <see cref="IConfiguration"/> 
     /// object, parses it, and returns the value as a float value. 
@@ -957,8 +927,6 @@ public static partial class ConfigurationExtensions
 
         return false;
     }
-
-    // *******************************************************************
 
     /// <summary>
     /// This method reads a key-value pair from an <see cref="IConfiguration"/> 
@@ -997,8 +965,6 @@ public static partial class ConfigurationExtensions
         return false;
     }
 
-    // *******************************************************************
-
     /// <summary>
     /// This method reads a key-value pair from an <see cref="IConfiguration"/> 
     /// object, parses it, and returns the value as a decimal value. 
@@ -1035,8 +1001,6 @@ public static partial class ConfigurationExtensions
 
         return false;
     }
-
-    // *******************************************************************
 
     /// <summary>
     /// This method reads a key-value pair from an <see cref="IConfiguration"/> 
@@ -1077,8 +1041,6 @@ public static partial class ConfigurationExtensions
         return result;
     }
 
-    // *******************************************************************
-
     /// <summary>
     /// This method reads a key-value pair from an <see cref="IConfiguration"/> 
     /// object, parses it, and returns the value, or a default if the key was
@@ -1109,8 +1071,6 @@ public static partial class ConfigurationExtensions
 
         return retValue;
     }
-
-    // *******************************************************************
 
     /// <summary>
     /// This method reads a key-value pair from an <see cref="IConfiguration"/> 
@@ -1143,8 +1103,6 @@ public static partial class ConfigurationExtensions
         return retValue;
     }
 
-    // *******************************************************************
-
     /// <summary>
     /// This method reads a key-value pair from an <see cref="IConfiguration"/> 
     /// object, parses it, and returns the value, or a default if the key was
@@ -1175,8 +1133,6 @@ public static partial class ConfigurationExtensions
 
         return retValue;
     }
-
-    // *******************************************************************
 
     /// <summary>
     /// This method reads a key-value pair from an <see cref="IConfiguration"/> 
@@ -1209,8 +1165,6 @@ public static partial class ConfigurationExtensions
         return retValue;
     }
 
-    // *******************************************************************
-
     /// <summary>
     /// This method reads a key-value pair from an <see cref="IConfiguration"/> 
     /// object, parses it, and returns the value, or a default if the key was
@@ -1241,8 +1195,6 @@ public static partial class ConfigurationExtensions
 
         return retValue;
     }
-
-    // *******************************************************************
 
     /// <summary>
     /// This method reads a key-value pair from an <see cref="IConfiguration"/> 
@@ -1275,8 +1227,6 @@ public static partial class ConfigurationExtensions
         return retValue;
     }
 
-    // *******************************************************************
-
     /// <summary>
     /// This method reads a key-value pair from an <see cref="IConfiguration"/> 
     /// object, parses it, and returns the value, or a default if the key was
@@ -1307,8 +1257,6 @@ public static partial class ConfigurationExtensions
 
         return retValue;
     }
-
-    // *******************************************************************
 
     /// <summary>
     /// This method reads a key-value pair from an <see cref="IConfiguration"/> 
@@ -1341,8 +1289,6 @@ public static partial class ConfigurationExtensions
         return retValue;
     }
 
-    // *******************************************************************
-
     /// <summary>
     /// This method reads a key-value pair from an <see cref="IConfiguration"/> 
     /// object, parses it, and returns the value, or a default if the key was
@@ -1373,8 +1319,6 @@ public static partial class ConfigurationExtensions
 
         return retValue;
     }
-
-    // *******************************************************************
 
     /// <summary>
     /// This method reads a key-value pair from an <see cref="IConfiguration"/> 
@@ -1407,8 +1351,6 @@ public static partial class ConfigurationExtensions
         return retValue;
     }
 
-    // *******************************************************************
-
     /// <summary>
     /// This method reads a key-value pair from an <see cref="IConfiguration"/> 
     /// object, parses it, and returns the value, or a default if the key was
@@ -1439,8 +1381,6 @@ public static partial class ConfigurationExtensions
 
         return retValue;
     }
-
-    // *******************************************************************
 
     /// <summary>
     /// This method reads a key-value pair from an <see cref="IConfiguration"/> 
@@ -1473,8 +1413,6 @@ public static partial class ConfigurationExtensions
 
         return retValue;
     }
-
-    // *******************************************************************
 
     /// <summary>
     /// This method converts the given configuration object into equivalent 
@@ -1514,17 +1452,9 @@ public static partial class ConfigurationExtensions
         return sb.ToString();
     }
 
-    // *******************************************************************
-
     /// <summary>
-    /// This method blasts the contents of the given configuration object
-    /// to the specified file, as formatted JSON text.  
+    /// This method writes configuration contents to a file as formatted JSON text.
     /// </summary>
-    /// <param name="configuration">The configuration object to use for 
-    /// the operation.</param>
-    /// <param name="filePath">The file to write to, or create if needed.</param>
-    /// <exception cref="ArgumentException">This exception is thrown whenever 
-    /// one or more arguments is missing or invalid.</exception>
     /// <remarks>
     /// <para>
     /// The file is created if needed. The contents of the file are overwritten 
@@ -1532,6 +1462,11 @@ public static partial class ConfigurationExtensions
     /// distributed between environments.
     /// </para>
     /// </remarks>
+    /// <param name="configuration">The configuration object to use for 
+    /// the operation.</param>
+    /// <param name="filePath">The file to write to, or create if needed.</param>
+    /// <exception cref="ArgumentException">This exception is thrown whenever 
+    /// one or more arguments is missing or invalid.</exception>
     public static void WriteAsJSON(
         [NotNull] this IConfiguration configuration,
         [NotNull] string filePath
@@ -1545,19 +1480,9 @@ public static partial class ConfigurationExtensions
         File.WriteAllText(filePath, json);
     }
 
-    // *******************************************************************
-
     /// <summary>
-    /// This method blasts the contents of the given configuration object
-    /// to the specified file, as formatted JSON text.  
+    /// This method asynchronously writes configuration to a file as formatted JSON.
     /// </summary>
-    /// <param name="configuration">The configuration object to use for 
-    /// the operation.</param>
-    /// <param name="filePath">The file to write to, or create if needed.</param>
-    /// <param name="cancellationToken">A cancellation token.</param>
-    /// <returns>A task to perform the operation.</returns>
-    /// <exception cref="ArgumentException">This exception is thrown whenever 
-    /// one or more arguments is missing or invalid.</exception>
     /// <remarks>
     /// <para>
     /// The file is created if needed. The contents of the file are overwritten 
@@ -1565,6 +1490,14 @@ public static partial class ConfigurationExtensions
     /// distributed between environments.
     /// </para>
     /// </remarks>
+    /// <param name="configuration">The configuration object to use for 
+    /// the operation.</param>
+    /// <param name="filePath">The file to write to, or create if needed.</param>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>A task to perform the operation.</returns>
+    /// <exception cref="ArgumentException">This exception is thrown whenever 
+    /// one or more arguments is missing or invalid.</exception>
+    /// <exception cref="OperationCanceledException">Thrown when the operation is canceled.</exception>
     public static async Task WriteAsJSONAsync(
         [NotNull] this IConfiguration configuration,
         [NotNull] string filePath,
@@ -1583,28 +1516,24 @@ public static partial class ConfigurationExtensions
             ).ConfigureAwait(false);
     }
 
-    #endregion
-
-    // *******************************************************************
     // Private methods.
-    // *******************************************************************
-
-    #region Private methods
 
     /// <summary>
     /// This method reads a field value from the specified object.
     /// </summary>
-    /// <param name="obj">The object to use for the operation.</param>
-    /// <param name="fieldName">The field to use for the operation.</param>
-    /// <param name="includeProtected">Determines if protected fields are included 
-    /// in the search.</param>
-    /// <returns>The value of the field.</returns>
     /// <remarks>
     /// <para>The idea, with this method, is to use reflection to go find
     /// and return a field value from an object at runtime. The intent is 
     /// to use this sparingly because the performance isn't great. I see
     /// this approach as something useful for things like unit testing.</para>
     /// </remarks>
+    /// <param name="obj">The object to use for the operation.</param>
+    /// <param name="fieldName">The field to use for the operation.</param>
+    /// <param name="includeProtected">Determines if protected fields are included 
+    /// in the search.</param>
+    /// <returns>The value of the field.</returns>
+    /// <exception cref="ArgumentException">This exception is thrown whenever
+    /// one or more of the argument is missing, or invalid.</exception>
     private static object? GetFieldValue(
         [NotNull] this object obj,
         [NotNull] string fieldName,
@@ -1640,5 +1569,4 @@ public static partial class ConfigurationExtensions
         return value;
     }
 
-    #endregion
 }
